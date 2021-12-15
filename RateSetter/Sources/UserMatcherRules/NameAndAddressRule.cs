@@ -1,4 +1,4 @@
-﻿namespace RateSetter.Sources.Settings
+﻿namespace RateSetter.Sources.UserMatcherRules
 {
     public class NameAndAddressRule
     {

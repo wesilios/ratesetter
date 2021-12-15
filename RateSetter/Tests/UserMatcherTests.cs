@@ -1,228 +1,263 @@
-﻿using RateSetter.Sources;
+﻿using System.Collections.Generic;
+using RateSetter.Sources;
+using RateSetter.Sources.UserMatcherRules;
 using Xunit;
 
 namespace RateSetter.Tests
 {
     public class UserMatcherTests
     {
-        private static UserMatcher UserMatcher => new UserMatcher(TestCases.UserMatcherSettings.Default);
-
         [Fact]
         public void IsMatch_MatchNameAndAddress_ExpectMatch()
         {
-            var existingUser = TestCases.Users.ExistingUser;
+            var existingUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.771525m,
+                    Longitude = 106.698359m
+                }
+            };
 
-            var newUser = TestCases.Users.MatchedWithNameAndAddressUser;
+            var newUser = new User
+            {
+                Name = " John ", // Match name
+                ReferralCode = "4312DCBA", // Not Match Referral Code
+                Address = new Address
+                {
+                    StreetAddress = "@!$%^!@!#Tower_1,_1_Alexander_street", // Match StreetAddress
+                    Suburb = "@!$%^!@!#District+One?", // Match Suburb
+                    State = "@!$%^!@!#[Paris]@!$%^!@!#", // Match State
+                    Latitude = 10.770094m, // Not Match Latitude
+                    Longitude = 106.693742m // Not Match Longitude
+                }
+            };
 
-            Assert.True(UserMatcher.IsMatch(newUser, existingUser));
+            var userMatcher = UserMatcher();
+
+            Assert.True(userMatcher.IsMatch(newUser, existingUser));
         }
-        
+
         [Fact]
         public void IsMatch_MatchInDistance_ExpectMatch()
         {
-            var existingUser = TestCases.Users.ExistingUser;
+            var existingUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.771525m,
+                    Longitude = 106.698359m
+                }
+            };
 
-            var newUser = TestCases.Users.MatchedWithInDistanceUser;
+            var newUser = new User
+            {
+                Name = " Jane ", // Not Match name
+                ReferralCode = "4312DCBA", // Not Match Referral Code
+                Address = new Address
+                {
+                    StreetAddress = "@!$%^!@!#Tower_1,_132_Alexander_street", // Not Match StreetAddress
+                    Suburb = "@!$%^!@!#District+Two?", // Not Match Suburb
+                    State = "@!$%^!@!#[New York]@!$%^!@!#", // Not Match State
+                    Latitude = 10.77206m, // Match Latitude
+                    Longitude = 106.698298m // Match Longitude
+                }
+            };
 
-            Assert.True(UserMatcher.IsMatch(newUser, existingUser));
+            var userMatcher = UserMatcher();
+
+            Assert.True(userMatcher.IsMatch(newUser, existingUser));
         }
-        
+
         [Fact]
         public void IsMatch_MatchReferralCode_ExpectMatch()
         {
-            var existingUser = TestCases.Users.ExistingUser;
+            var existingUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.771525m,
+                    Longitude = 106.698359m
+                }
+            };
 
-            var newUser = TestCases.Users.MatchedWithReferralCodeUser;
+            var newUser = new User
+            {
+                Name = " Jane ", // Not Match name
+                ReferralCode = "ADCB1234", // Match Referral Code
+                Address = new Address
+                {
+                    StreetAddress = "@!$%^!@!#Tower_1,_1_Alexander_street", // Not Match StreetAddress
+                    Suburb = "@!$%^!@!#District+One?", // Not Match Suburb
+                    State = "@!$%^!@!#[Paris]@!$%^!@!#", // Not Match State
+                    Latitude = 10.770094m, // Not Match Latitude
+                    Longitude = 106.693742m // Not Match Longitude
+                }
+            };
 
-            Assert.True(UserMatcher.IsMatch(newUser, existingUser));
+            var userMatcher = UserMatcher();
+
+            Assert.True(userMatcher.IsMatch(newUser, existingUser));
         }
 
         [Fact]
         public void IsMatch_ExpectNotMatch()
         {
-            var existingUser = TestCases.Users.ExistingUser;
+            var existingUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.771525m,
+                    Longitude = 106.698359m
+                }
+            };
 
-            var newUsers = TestCases.Users.NotMatchedUsers;
+            var newUsers = new List<User>
+            {
+                // Name not match
+                new User
+                {
+                    Name = " John H.",
+                    ReferralCode = "ADCB1234",
+                    Address = new Address
+                    {
+                        StreetAddress = "@!$%^!@!#Tower_1,_1_Alexander_street",
+                        Suburb = "@!$%^!@!#District+One?",
+                        State = "@!$%^!@!#[Paris]@!$%^!@!#",
+                        Latitude = 10.77206m,
+                        Longitude = 106.698298m
+                    }
+                },
+                // Address not match
+                new User
+                {
+                    Name = " John ",
+                    ReferralCode = "ADCB1234",
+                    Address = new Address
+                    {
+                        StreetAddress = "@!$%^!@!#Tower_1,_1_Alexander_HM_street",
+                        Suburb = "@!$%^!@!#District+Two?",
+                        State = "@!$%^!@!#[New York]@!$%^!@!#",
+                        Latitude = 10.77206m,
+                        Longitude = 106.698298m
+                    }
+                },
+                // Referral Code not match
+                new User
+                {
+                    Name = " John ",
+                    ReferralCode = "ADCBE1234",
+                    Address = new Address
+                    {
+                        StreetAddress = "@!$%^!@!#Tower_1,_1_Alexander_street",
+                        Suburb = "@!$%^!@!#District+One?",
+                        State = "@!$%^!@!#[Paris]@!$%^!@!#",
+                        Latitude = 10.77206m,
+                        Longitude = 106.698298m
+                    }
+                },
+                // Distance is not in range
+                new User
+                {
+                    Name = " John ",
+                    ReferralCode = "ADCB1234",
+                    Address = new Address
+                    {
+                        StreetAddress = "@!$%^!@!#Tower_1,_1_Alexander_street",
+                        Suburb = "@!$%^!@!#District+One?",
+                        State = "@!$%^!@!#[Paris]@!$%^!@!#",
+                        Latitude = 10.770094m,
+                        Longitude = 106.693742m
+                    }
+                }
+            };
 
             foreach (var newUser in newUsers)
             {
-                Assert.True(UserMatcher.IsMatch(newUser, existingUser));
+                var userMatcher = UserMatcher();
+
+                Assert.True(userMatcher.IsMatch(newUser, existingUser));
             }
         }
 
-        [Fact]
-        public void HasNameAddressMatched_ExpectMatch()
-        {
-            var newUsers = TestCases.Users.UsersHaveNameAddressMatched;
-
-            var existingUser = TestCases.Users.ExistingUser;
-
-            foreach (var newUser in newUsers)
-            {
-                Assert.True(UserMatcher.HasNameAddressMatched(newUser, existingUser));
-            }
-        }
-
-        [Fact]
-        public void HasNameAddressMatched_ExpectNotMatch()
-        {
-            var newUsers = TestCases.Users.UsersHaveNameAddressNotMatched;
-
-            var existingUser = TestCases.Users.ExistingUser;
-
-            foreach (var newUser in newUsers)
-            {
-                Assert.False(UserMatcher.HasNameAddressMatched(newUser, existingUser));
-            }
-        }
-
-        [Theory]
-        [InlineData("ABC123", "ABC123", 3)]
-        [InlineData("CBA123", "ABC123", 3)]
-        [InlineData("A1CB23", "ABC123", 3)]
-        [InlineData("AB21C3", "ABC123", 3)]
-        [InlineData("ABC321", "ABC123", 3)]
-        [InlineData("ABCABC", "ABCABC", 3)]
-        [InlineData("CBAABC", "ABCABC", 3)]
-        [InlineData("ABCD123", "ABCD123", 3)]
-        [InlineData("CBAD123", "ABCD123", 3)]
-        [InlineData("ADCB123", "ABCD123", 3)]
-        [InlineData("AB1DC23", "ABCD123", 3)]
-        [InlineData("ABC21D3", "ABCD123", 3)]
-        [InlineData("ABCD321", "ABCD123", 3)]
-        [InlineData("ABCD123", "ABCD123", 4)]
-        [InlineData("DCBA123", "ABCD123", 4)]
-        [InlineData("A1DCB23", "ABCD123", 4)]
-        [InlineData("AB21DC3", "ABCD123", 4)]
-        [InlineData("ABC321D", "ABCD123", 4)]
-        [InlineData("ABCD123", "ABCD123", 5)]
-        [InlineData("1DCBA23", "ABCD123", 5)]
-        [InlineData("A21DCB3", "ABCD123", 5)]
-        [InlineData("AB321DC", "ABCD123", 5)]
-        [InlineData("CBA", "ABC", 4)]
-        [InlineData("DCBA", "ABCD", 5)]
-        public void HasReferralCodeMatched_ExpectMatch(string newReferralCode, string existingReferralCode,
-            int numberCharacterReversed)
-        {
-            var userMatcherSetting = TestCases.UserMatcherSettings.Default;
-
-            userMatcherSetting.ReferralCodeRule.CharactersNumber = numberCharacterReversed;
-
-            var userMatcher = new UserMatcher(userMatcherSetting);
-
-            var result = userMatcher.HasReferralCodeMatched(newReferralCode, existingReferralCode);
-
-            Assert.True(result);
-        }
-
-        [Theory]
-        [InlineData("321CBA", "ABC123", 3)]
-        [InlineData("21CBA3", "ABC123", 3)]
-        [InlineData("31CB2A", "ABC123", 3)]
-        [InlineData("3B21CA", "ABC123", 3)]
-        [InlineData("A321CB", "ABC123", 3)]
-        [InlineData("CBA321", "ABC123", 3)]
-        [InlineData("ACB321", "ABC123", 3)]
-        [InlineData("CAB321", "ABC123", 3)]
-        [InlineData("ABCD123", "ABC123", 3)]
-        [InlineData("321DCBA", "ABCD123", 3)]
-        [InlineData("321DCBA", "ABCD123", 2)]
-        [InlineData("321DCBA", "ABCD123", 5)]
-        [InlineData("321DCBA", "ABCD123", 4)]
-        public void HasReferralCodeMatched_ExpectNotMatch(string newReferralCode, string existingReferralCode,
-            int numberCharacterReversed)
-        {
-            var userMatcherSetting = TestCases.UserMatcherSettings.Default;
-
-            userMatcherSetting.ReferralCodeRule.CharactersNumber = numberCharacterReversed;
-
-            var userMatcher = new UserMatcher(userMatcherSetting);
-            
-            var result = userMatcher.HasReferralCodeMatched(newReferralCode, existingReferralCode);
-
-            Assert.False(result);
-        }
-
-        [Theory]
-        [InlineData(10.77206, 106.698298)]
-        [InlineData(10.771964, 106.697888)]
-        public void IsInDistance_ExpectInDistance(decimal latitude, decimal longitude)
-        {
-            var newAddress = new Address
-            {
-                Latitude = latitude,
-                Longitude = longitude
-            };
-
-            var existingAddress = TestCases.Users.ExistingUser.Address;
-
-            var result = UserMatcher.IsInDistance(newAddress, existingAddress);
-
-            Assert.True(result);
-        }
-
-        [Theory]
-        [InlineData(10.770094, 106.693742)]
-        [InlineData(10.771558, 106.693440)]
-        public void IsInDistance_ExpectNotInDistance(decimal latitude, decimal longitude)
-        {
-            var newAddress = new Address
-            {
-                Latitude = latitude,
-                Longitude = longitude
-            };
-
-            var existingAddress = new Address
-            {
-                Latitude = 10.7715512m,
-                Longitude = 106.6983801m
-            };
-
-            var result = UserMatcher.IsInDistance(newAddress, existingAddress);
-
-            Assert.False(result);
-        }
 
         [Fact]
         public void IsMatch_MatchReferralCode_IgnoreReferralCodeRule_ExpectNotMatch()
         {
-            var existingUser = TestCases.Users.ExistingUser;
+            var existingUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.771525m,
+                    Longitude = 106.698359m
+                }
+            };
 
-            var newUser = TestCases.Users.MatchedUserButIgnoreReferralCodeRule;
+            var newUser = new User
+            {
+                Name = " Jane ",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "@!$%^!@!#Tower_1,_12_Alexander_street",
+                    Suburb = "@!$%^!@!#District+Two?",
+                    State = "@!$%^!@!#[NewYork]@!$%^!@!#",
+                    Latitude = 10.770094m,
+                    Longitude = 106.693742m
+                }
+            };
 
-            var userMatcherSetting = TestCases.UserMatcherSettings.IgnoreReferralCodeRule;
+            var referralCodeRule = new ReferralCodeRule
+            {
+                IgnoreRule = true,
+                CharactersNumber = 3
+            };
 
-            var userMatcher = new UserMatcher(userMatcherSetting);
+            var userMatcher = UserMatcher(null, null, referralCodeRule);
 
             Assert.False(userMatcher.IsMatch(newUser, existingUser));
         }
 
-        [Fact]
-        public void IsMatch_InDistance_IgnoreDistanceRule_ExpectNotMatch()
+        private static UserMatcher UserMatcher(DistanceRule distanceRule = null,
+            NameAndAddressRule nameAndAddressRule = null, ReferralCodeRule referralCodeRule = null)
         {
-            var existingUser = TestCases.Users.ExistingUser;
+            var distanceMatcher = distanceRule is null
+                ? new DistanceMatcher()
+                : new DistanceMatcher(distanceRule);
 
-            var newUser = TestCases.Users.MatchedUserButIgnoreDistanceRule;
+            var nameAndAddressMatcher = nameAndAddressRule is null
+                ? new NameAndAddressMatcher()
+                : new NameAndAddressMatcher(nameAndAddressRule);
 
-            var userMatcherSetting = TestCases.UserMatcherSettings.IgnoreDistanceRule;
-
-            var userMatcher = new UserMatcher(userMatcherSetting);
-
-            Assert.False(userMatcher.IsMatch(newUser, existingUser));
-        }
-
-        [Fact]
-        public void IsMatch_NameAndAddress_IgnoreNameAndAddressRule_ExpectNotMatch()
-        {
-            var existingUser = TestCases.Users.ExistingUser;
-
-            var newUser = TestCases.Users.MatchedUserButIgnoreNameAndAddressRule;
-
-            var userMatcherSetting = TestCases.UserMatcherSettings.IgnoreNameAndAddressRule;
-
-            var userMatcher = new UserMatcher(userMatcherSetting);
-
-            Assert.False(userMatcher.IsMatch(newUser, existingUser));
+            var referralCodeMatcher = referralCodeRule is null
+                ? new ReferralCodeMatcher()
+                : new ReferralCodeMatcher(referralCodeRule);
+            return new UserMatcher(distanceMatcher, nameAndAddressMatcher, referralCodeMatcher);
         }
     }
 }
