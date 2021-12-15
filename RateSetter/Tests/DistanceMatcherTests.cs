@@ -87,5 +87,53 @@ namespace RateSetter.Tests
 
             Assert.False(result);
         }
+
+        [Theory]
+        [InlineData(92.0000, -118.3977091)]
+        [InlineData(90.0000, -188.3977091)]
+        public void InDistance_newAddressCoordinateOutOfRange_ExpectMatch(decimal latitude, decimal longitude)
+        {
+            var newAddress = new Address
+            {
+                Latitude = latitude,
+                Longitude = longitude
+            };
+
+            var existingAddress = new Address
+            {
+                Latitude = 10.771525m,
+                Longitude = 106.698359m
+            };
+            
+            var distanceMatcher = new DistanceMatcher();
+
+            var result = distanceMatcher.IsInDistance(newAddress, existingAddress);
+
+            Assert.True(result);
+        }
+        
+        [Theory]
+        [InlineData(92.0000, -118.3977091)]
+        [InlineData(90.0000, -188.3977091)]
+        public void InDistance_existingAddressCoordinateOutOfRange_ExpectMatch(decimal latitude, decimal longitude)
+        {
+            var newAddress = new Address
+            {
+                Latitude = 10.771525m,
+                Longitude = 106.698359m
+            };
+
+            var existingAddress = new Address
+            {
+                Latitude = latitude,
+                Longitude = longitude
+            };
+            
+            var distanceMatcher = new DistanceMatcher();
+
+            var result = distanceMatcher.IsInDistance(newAddress, existingAddress);
+
+            Assert.True(result);
+        }
     }
 }
