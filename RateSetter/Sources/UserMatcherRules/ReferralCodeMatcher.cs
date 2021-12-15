@@ -1,6 +1,4 @@
-﻿using RateSetter.Sources.Settings;
-
-namespace RateSetter.Sources.UserMatcherRules
+﻿namespace RateSetter.Sources.UserMatcherRules
 {
     public class ReferralCodeMatcher : IReferralCodeMatcher
     {
@@ -26,7 +24,7 @@ namespace RateSetter.Sources.UserMatcherRules
 
             if (!newCode.Length.Equals(existingCode.Length)) return false;
 
-            if (newCode.Equals(existingCode)) return false;
+            if (newCode.Equals(existingCode)) return true;
 
             var range = _referralCodeRule.CharactersNumber - 1;
             if (range >= existingCode.Length)

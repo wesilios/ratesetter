@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using RateSetter.Sources;
-using RateSetter.Sources.Geolocations;
-using RateSetter.Sources.Settings;
 using RateSetter.Sources.UserMatcherRules;
 using Xunit;
 
@@ -241,91 +239,6 @@ namespace RateSetter.Tests
             };
 
             var userMatcher = UserMatcher(null, null, referralCodeRule);
-
-            Assert.False(userMatcher.IsMatch(newUser, existingUser));
-        }
-
-        [Fact]
-        public void IsMatch_InDistance_IgnoreDistanceRule_ExpectNotMatch()
-        {
-            var existingUser = new User
-            {
-                Name = "John",
-                ReferralCode = "ABCD1234",
-                Address = new Address
-                {
-                    StreetAddress = "Tower 1, 1 Alexander street",
-                    Suburb = "District One",
-                    State = "Paris",
-                    Latitude = 10.771525m,
-                    Longitude = 106.698359m
-                }
-            };
-
-            var newUser = new User
-            {
-                Name = "John",
-                ReferralCode = "ABCDE1234",
-                Address = new Address
-                {
-                    StreetAddress = "@!$%^!@!#Tower_1,_12_Alexander_street",
-                    Suburb = "@!$%^!@!#District+Two?",
-                    State = "@!$%^!@!#[NewYork]@!$%^!@!#",
-                    Latitude = 10.771525m,
-                    Longitude = 106.698359m
-                }
-            };
-
-            var distanceRule = new DistanceRule
-            {
-                IgnoreRule = true,
-                DistanceUnit = DistanceUnit.Meters.ToString(),
-                DecimalPlaces = 1,
-                DistanceLimit = 500.0
-            };
-            
-            var userMatcher = UserMatcher(distanceRule);
-            
-            Assert.False(userMatcher.IsMatch(newUser, existingUser));
-        }
-
-        [Fact]
-        public void IsMatch_NameAndAddress_IgnoreNameAndAddressRule_ExpectNotMatch()
-        {
-            var existingUser = new User
-            {
-                Name = "John",
-                ReferralCode = "ABCD1234",
-                Address = new Address
-                {
-                    StreetAddress = "Tower 1, 1 Alexander street",
-                    Suburb = "District One",
-                    State = "Paris",
-                    Latitude = 10.771525m,
-                    Longitude = 106.698359m
-                }
-            };
-
-            var newUser = new User
-            {
-                Name = "John",
-                ReferralCode = "ADCBE1234",
-                Address = new Address
-                {
-                    StreetAddress = "Tower 1, 1 Alexander street",
-                    Suburb = "District One",
-                    State = "Paris",
-                    Latitude = 10.770094m,
-                    Longitude = 106.693742m
-                }
-            };
-
-            var nameAndAddressRule = new NameAndAddressRule
-            {
-                IgnoreRule = true,
-            };
-
-            var userMatcher = UserMatcher(null, nameAndAddressRule);
 
             Assert.False(userMatcher.IsMatch(newUser, existingUser));
         }

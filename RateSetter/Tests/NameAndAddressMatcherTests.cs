@@ -79,5 +79,46 @@ namespace RateSetter.Tests
 
             Assert.False(nameAndAddressMatcher.HasNameAddressMatched(newUser, existingUser));
         }
+
+        [Fact]
+        public void HasNameAddressMatched_IgnoreNameAndAddressRule_ExpectNotMatch()
+        {
+            var existingUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ABCD1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.771525m,
+                    Longitude = 106.698359m
+                }
+            };
+
+            var newUser = new User
+            {
+                Name = "John",
+                ReferralCode = "ADCBE1234",
+                Address = new Address
+                {
+                    StreetAddress = "Tower 1, 1 Alexander street",
+                    Suburb = "District One",
+                    State = "Paris",
+                    Latitude = 10.770094m,
+                    Longitude = 106.693742m
+                }
+            };
+            
+            var nameAndAddressRule = new NameAndAddressRule
+            {
+                IgnoreRule = true,
+            };
+            
+            var nameAndAddressMatcher = new NameAndAddressMatcher(nameAndAddressRule);
+            
+            Assert.False(nameAndAddressMatcher.HasNameAddressMatched(newUser, existingUser));
+        }
     }
 }

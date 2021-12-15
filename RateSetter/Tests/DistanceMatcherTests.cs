@@ -1,4 +1,5 @@
 ﻿using RateSetter.Sources;
+using RateSetter.Sources.Geolocations;
 using RateSetter.Sources.UserMatcherRules;
 using Xunit;
 
@@ -52,6 +53,36 @@ namespace RateSetter.Tests
 
             var distanceMatcher = new DistanceMatcher();
 
+            var result = distanceMatcher.IsInDistance(newAddress, existingAddress);
+
+            Assert.False(result);
+        }
+
+        [Fact]
+        public void InDistance_IgnoreDistanceRule_ExpectNotMatch()
+        {
+            var newAddress = new Address
+            {
+                Latitude = 10.771525m,
+                Longitude = 106.698359m
+            };
+
+            var existingAddress = new Address
+            {
+                Latitude = 10.771525m,
+                Longitude = 106.698359m
+            };
+            
+            var distanceRule = new DistanceRule
+            {
+                IgnoreRule = true,
+                DistanceUnit = DistanceUnit.Meters.ToString(),
+                DecimalPlaces = 1,
+                DistanceLimit = 500.0
+            };
+            
+            var distanceMatcher = new DistanceMatcher(distanceRule);
+            
             var result = distanceMatcher.IsInDistance(newAddress, existingAddress);
 
             Assert.False(result);

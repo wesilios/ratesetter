@@ -1,6 +1,5 @@
 ﻿using System;
 using RateSetter.Sources.Geolocations;
-using RateSetter.Sources.Settings;
 
 namespace RateSetter.Sources.UserMatcherRules
 {

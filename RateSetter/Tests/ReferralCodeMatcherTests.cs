@@ -1,5 +1,4 @@
-﻿using RateSetter.Sources.Settings;
-using RateSetter.Sources.UserMatcherRules;
+﻿using RateSetter.Sources.UserMatcherRules;
 using Xunit;
 
 namespace RateSetter.Tests
@@ -38,10 +37,8 @@ namespace RateSetter.Tests
             var referralCodeRule = new ReferralCodeRule
             {
                 IgnoreRule = false,
-                CharactersNumber = 3
+                CharactersNumber = numberCharacterReversed
             };
-
-            referralCodeRule.CharactersNumber = numberCharacterReversed;
 
             var referralCodeMatcher = new ReferralCodeMatcher(referralCodeRule);
 
@@ -70,10 +67,8 @@ namespace RateSetter.Tests
             var referralCodeRule = new ReferralCodeRule
             {
                 IgnoreRule = false,
-                CharactersNumber = 3
+                CharactersNumber = numberCharacterReversed
             };
-
-            referralCodeRule.CharactersNumber = numberCharacterReversed;
 
             var referralCodeMatcher = new ReferralCodeMatcher(referralCodeRule);
             
@@ -94,13 +89,37 @@ namespace RateSetter.Tests
             var referralCodeRule = new ReferralCodeRule
             {
                 IgnoreRule = false,
-                CharactersNumber = 3
+                CharactersNumber = numberCharacterReversed
             };
+            
+            var referralCodeMatcher = new ReferralCodeMatcher(referralCodeRule);
+            
+            var result = referralCodeMatcher.HasReferralCodeMatched(newReferralCode, existingReferralCode);
 
-            referralCodeRule.CharactersNumber = numberCharacterReversed;
+            Assert.False(result);
+        }
+
+        [Theory]
+        [InlineData("A", "A", 1)]
+        [InlineData("AB", "AB", 2)]
+        [InlineData("BA", "AB", 2)]
+        [InlineData("ABC", "ABC", 3)]
+        [InlineData("CBA", "ABC", 3)]
+        [InlineData("ABC123", "ABC123", 3)]
+        [InlineData("CBA123", "ABC123", 3)]
+        [InlineData("A1CB23", "ABC123", 3)]
+        [InlineData("AB21C3", "ABC123", 3)]
+        [InlineData("ABC321", "ABC123", 3)]
+        public void MatchReferralCode_IgnoreReferralCodeRule_ExpectNotMatch(string newReferralCode,
+            string existingReferralCode, int numberCharacterReversed)
+        {
+            var referralCodeRule = new ReferralCodeRule
+            {
+                IgnoreRule = true,
+                CharactersNumber = numberCharacterReversed
+            };
             
-            var referralCodeMatcher = new ReferralCodeMatcher();
-            
+            var referralCodeMatcher = new ReferralCodeMatcher(referralCodeRule);
             var result = referralCodeMatcher.HasReferralCodeMatched(newReferralCode, existingReferralCode);
 
             Assert.False(result);

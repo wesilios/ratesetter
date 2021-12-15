@@ -1,5 +1,4 @@
 ﻿using RateSetter.Sources.Extensions;
-using RateSetter.Sources.Settings;
 
 namespace RateSetter.Sources.UserMatcherRules
 {
