@@ -79,6 +79,7 @@ namespace RateSetter.Tests
 
         [Theory]
         [InlineData("CBA456", "ABC123", 3)]
+        [InlineData("DEF456", "ABC123", 3)]
         [InlineData("CBA   ", "ABC123", 3)]
         [InlineData("DEF123", "ABC123", 3)]
         [InlineData("BAC456", "ABC123", 2)]
